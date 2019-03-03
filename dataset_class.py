@@ -1,6 +1,8 @@
 import _pickle as pickle
 import numpy as np
+
 DATASET_DIR ="./data_preprocessed_python/"  #Default dataset directory
+
 class Dataset():
     def __init__(self,directory=DATASET_DIR):
         '''
@@ -45,7 +47,7 @@ class Dataset():
             Normalize the EEG data
         '''
         mean = data[data.nonzero()].mean()
-        sigma = data[data. nonzero ()].std()
+        sigma = data[data.nonzero()].std()
         data_normalized = data
         data_normalized[data_normalized.nonzero()] = (data_normalized[data_normalized.nonzero()] - mean)/sigma
         # return shape: 9*9
@@ -97,7 +99,7 @@ class Dataset():
         #Fetching the required data
         eeg_time_data = data['data'][self.media]
         #Removing unnecessary channels
-        eeg = np.transpose(eeg_time_data[:32,:]).reshape(8064,32)
+        eeg = eeg_time_data[:32].transpose()
         eeg_2D_normalized = self.norm_2D_dataset(eeg)
         eeg_1D_normalized = self.norm_1D_dataset(eeg)
         #Fetching valance and arousal
@@ -105,5 +107,3 @@ class Dataset():
         arousal = data['labels'][self.media][1]
         #Returning the dataset
         return eeg_1D_normalized,eeg_2D_normalized,valance,arousal
-
-
