@@ -1,6 +1,51 @@
-#INCOMPLETE
 import os
+#Using tensorflow on cpu
 os.environ['CUDA_VISIBLE_DEVICES'] ='-1'
 import tensorflow as tf
 
+def create_LSTM_cell(hidden_states,n_outputs, drop_out = False, keep_prob = None):
+    '''
+        creates a basic LSTM cell
+        Args:
+        hidden states (int) : Number of hidden units in the cell
+        n_outputs (int) : Number of output nodes
+        drop_out (bool) : If dropout layer is required (Default: False)
+        keep_prob (tf.placeholder) : Holding probability for the dropout layer (Default: None)
+        Return:
+        Basic LSTM cell
+    '''
+    #Creating the LSTM cell
+    cell = tf.contrib.rnn.BasicLSTMcell(num_units = hidden_states, activation = tf.nn.elu)
+    #Adding dropout layer
+    if drop_out == True:
+        cell = tf.contrib.rnn.DropoutWrapper(cell,keep_prob = keep_prob)
+    #Wrapping the cell    
+    cell_wraped = tf.contrib.rnn.OutputProjectionWrapper(cell, output_size = n_outputs)
+    return cell_wraped
 
+def create_Stacked_cell(n_outputs, cells):
+    '''
+        creates a basic Multi/Stacked cell structure
+        Args:
+        n_outputs (int) : Number of output nodes
+        cells(list) : List for cells that are to be stacked
+        Return:
+        Wrapped MultiRNNcell
+    '''
+    #Creating the MultiRNN cell
+    cell = tf.contrib.rnn.MultiRNNcell(cells = cells)
+    #Wrapping the cell    
+    cell_wraped = tf.contrib.rnn.OutputProjectionWrapper(cell, output_size = n_outputs)
+    return cell_wraped
+
+def create_RNN(cell,inp):
+    '''
+    Creates a neural network using the provided cell
+    Args:
+    cell (tf.contrib.rnn) : The cell with which the rnn is to be created
+    inp (tf.placeholder) : The input set given to the RNN
+    Returns:
+    output: Output generator of the neural network
+    state: Final state of the neural network
+    '''
+    return tf.nn.dynamic_rnn(cell,inputs = inp, dtype=tf.float32)
