@@ -1,1 +1,3 @@
 __pycache__/
+pre_processed_data/*
+!pre_processed_data/.gitkeep
