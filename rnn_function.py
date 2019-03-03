@@ -3,12 +3,11 @@ import os
 os.environ['CUDA_VISIBLE_DEVICES'] ='-1'
 import tensorflow as tf
 
-def create_LSTM_cell(hidden_states,n_outputs, drop_out = False, keep_prob = None):
+def create_LSTM_cell(hidden_states,drop_out = False, keep_prob = None):
     '''
         creates a basic LSTM cell
         Args:
         hidden states (int) : Number of hidden units in the cell
-        n_outputs (int) : Number of output nodes
         drop_out (bool) : If dropout layer is required (Default: False)
         keep_prob (tf.placeholder) : Holding probability for the dropout layer (Default: None)
         Return:
@@ -19,24 +18,45 @@ def create_LSTM_cell(hidden_states,n_outputs, drop_out = False, keep_prob = None
     #Adding dropout layer
     if drop_out == True:
         cell = tf.contrib.rnn.DropoutWrapper(cell,keep_prob = keep_prob)
-    #Wrapping the cell    
-    cell_wraped = tf.contrib.rnn.OutputProjectionWrapper(cell, output_size = n_outputs)
-    return cell_wraped
+    return cell
 
-def create_Stacked_cell(n_outputs, cells):
+def create_Stacked_cell(cells):
     '''
         creates a basic Multi/Stacked cell structure
         Args:
-        n_outputs (int) : Number of output nodes
         cells(list) : List for cells that are to be stacked
         Return:
-        Wrapped MultiRNNcell
+        MultiRNNcell
     '''
     #Creating the MultiRNN cell
     cell = tf.contrib.rnn.MultiRNNcell(cells = cells)
     #Wrapping the cell    
-    cell_wraped = tf.contrib.rnn.OutputProjectionWrapper(cell, output_size = n_outputs)
-    return cell_wraped
+    return cell
+
+def output_wrapper(n_outputs, cell):
+    '''
+        Wraps the rnn cell's output to the given value
+        Args:
+        n_outputs (int) : Number of output nodes
+        cells(list) : List for cells that are to be stacked
+        Return:
+        Wrapped RNNcell
+    '''
+    wrapped = tf.contrib.rnn.OutputProjectionWrapper(cell, output_size = n_outputs)
+    return wrapped
+
+def dropout_wrapper(keep_prob, cell):
+    '''
+        Wraps the rnn cell's neurons in a dropout layer
+        Args:
+        keep_proba(tf.placeholder) : Probability of keeping a node's output
+        cells(list) : List for cells that are to be stacked
+        Return:
+        Wrapped RNNcell
+    '''
+    wrapped = tf.contrib.rnn.DropoutWrapper(cell, output_keep_prob=keep_prob)
+    return wrapped
+
 
 def create_RNN(cell,inp):
     '''
