@@ -3,21 +3,17 @@ import os
 os.environ['CUDA_VISIBLE_DEVICES'] ='-1'
 import tensorflow as tf
 
-def create_LSTM_cell(hidden_states,drop_out = False, keep_prob = None):
+def create_LSTM_cell(hidden_states):
     '''
         creates a basic LSTM cell
         Args:
         hidden states (int) : Number of hidden units in the cell
-        drop_out (bool) : If dropout layer is required (Default: False)
-        keep_prob (tf.placeholder) : Holding probability for the dropout layer (Default: None)
         Return:
         Basic LSTM cell
     '''
     #Creating the LSTM cell
-    cell = tf.contrib.rnn.BasicLSTMcell(num_units = hidden_states, activation = tf.nn.elu)
-    #Adding dropout layer
-    if drop_out == True:
-        cell = tf.contrib.rnn.DropoutWrapper(cell,keep_prob = keep_prob)
+    cell = tf.contrib.rnn.BasicLSTMCell(num_units = hidden_states, activation = tf.nn.elu)
+    #Returning the cell
     return cell
 
 def create_Stacked_cell(cells):
@@ -29,7 +25,7 @@ def create_Stacked_cell(cells):
         MultiRNNcell
     '''
     #Creating the MultiRNN cell
-    cell = tf.contrib.rnn.MultiRNNcell(cells = cells)
+    cell = tf.contrib.rnn.MultiRNNCell(cells = cells)
     #Wrapping the cell    
     return cell
 
