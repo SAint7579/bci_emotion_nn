@@ -2,6 +2,7 @@ import _pickle as pickle
 import numpy as np
 
 DATASET_DIR ="../dataset_emotion_nn/"  #Default dataset directory
+PROCESSED_DIR = "pre_processed_data/"
 
 # For the subject selection (1-32)
 subject = 0
@@ -68,12 +69,14 @@ def norm_2D_dataset(dataset_1D):
     # return shape: m*9*9
     return norm_dataset_2D
 
-def pre_process_all():
+def pre_process_all(directory=DATASET_DIR):
     for i in range (1,33):
         if i<10:
-            temp=pickle.load(open(DATASET_DIR+'s'+str(0)+str(i)+'.dat','rb'),encoding='latin1')
+            file_name='s'+str(0)+str(i)
+            temp=pickle.load(open(directory+file_name+'.dat','rb'),encoding='latin1')
         else:
-            temp=pickle.load(open(DATASET_DIR+'s'+str(i)+'.dat','rb'),encoding='latin1')
+            file_name='s'+str(i)
+            temp=pickle.load(open(directory+file_name+'.dat','rb'),encoding='latin1')
 
         temp['labels'] = temp['labels'][:,:2]
         
@@ -83,10 +86,23 @@ def pre_process_all():
         base_mean=base_data.sum(axis=2)/N
         data=data[:,:32,N:]
         data=data-base_mean[:,:,None]      #(40, 32, 7680)
+        eeg_1D=[]
+        eeg_2D=[]
         for media in data:
             eeg = media.transpose()
-            eeg_2D_normalized = norm_2D_dataset(eeg)
-            eeg_1D_normalized = norm_1D_dataset(eeg)
+            eeg_1D.append(norm_1D_dataset(eeg))
+            eeg_2D.append(norm_2D_dataset(eeg))
+
+        eeg_1D=np.array(eeg_1D)
+        eeg_2D=np.array(eeg_2D)
+
+        with open(PROCESSED_DIR+file_name+"_cnn","wb") as f:
+            pickle.dump(eeg_2D,f,protocol=4)
+        with open(PROCESSED_DIR+file_name+"_rnn","wb") as f:
+            pickle.dump(eeg_1D,f,protocol=4)
+        with open(PROCESSED_DIR+file_name+"_labels","wb") as f:
+            pickle.dump(temp['labels'],f)
+
 
 def get_subject_data(subject_no,media_no):
     '''
