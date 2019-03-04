@@ -78,7 +78,7 @@ def pre_process_range(directory=DATASET_DIR,start_range=1,end_range=33):
         print("[+] Reading:",file_name)
         temp=pickle.load(open(directory+file_name+'.dat','rb'),encoding='latin1')
 
-        temp['labels'] = temp['labels'][:,:2]
+        temp['labels'] = (temp['labels'][:,:2]>5)*1
         print("[*] Processing:",file_name)
         
         N = (sample_rate*3)
