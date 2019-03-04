@@ -73,12 +73,13 @@ def pre_process_all(directory=DATASET_DIR):
     for i in range (1,33):
         if i<10:
             file_name='s'+str(0)+str(i)
-            temp=pickle.load(open(directory+file_name+'.dat','rb'),encoding='latin1')
         else:
             file_name='s'+str(i)
-            temp=pickle.load(open(directory+file_name+'.dat','rb'),encoding='latin1')
+        print("[+] Reading:",file_name)
+        temp=pickle.load(open(directory+file_name+'.dat','rb'),encoding='latin1')
 
         temp['labels'] = temp['labels'][:,:2]
+        print("[*] Processing:",file_name)
         
         N = (sample_rate*3)
         data=temp['data']
@@ -88,14 +89,19 @@ def pre_process_all(directory=DATASET_DIR):
         data=data-base_mean[:,:,None]      #(40, 32, 7680)
         eeg_1D=[]
         eeg_2D=[]
+        i=0
         for media in data:
+            print('\r',i*100//data.shape[0],'%',end='')
+            i+=1
             eeg = media.transpose()
             eeg_1D.append(norm_1D_dataset(eeg))
             eeg_2D.append(norm_2D_dataset(eeg))
 
+        print('\r100 %')
         eeg_1D=np.array(eeg_1D)
         eeg_2D=np.array(eeg_2D)
 
+        print("[+] Writing processed:",file_name)
         with open(PROCESSED_DIR+file_name+"_cnn","wb") as f:
             pickle.dump(eeg_2D,f,protocol=4)
         with open(PROCESSED_DIR+file_name+"_rnn","wb") as f:
