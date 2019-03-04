@@ -125,7 +125,7 @@ def get_subject_data(subject_no,media_no):
         file_name='s'+str(0)+str(subject_no)
     else:
         file_name='s'+str(subject_no)
-    print("[+] Reading subject:",file_name)
+    print("[+] Reading subject:",file_name,"Media:",media_no)
     #Importing the file
     file_dir = PROCESSED_DIR+file_name
     #Fetching the required data
