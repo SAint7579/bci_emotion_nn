@@ -4,10 +4,6 @@ import numpy as np
 DATASET_DIR ="../dataset_emotion_nn/"  #Default dataset directory
 PROCESSED_DIR = "pre_processed_data/"
 
-# For the subject selection (1-32)
-subject = 0
-# For selecting the media (1-40)
-media = 0
 # smaple rate 128 Hz
 sample_rate=128
     
@@ -102,12 +98,13 @@ def pre_process_all(directory=DATASET_DIR):
         eeg_2D=np.array(eeg_2D)
 
         print("[+] Writing processed:",file_name)
-        with open(PROCESSED_DIR+file_name+"_cnn","wb") as f:
+        with open(PROCESSED_DIR+file_name+"_cnn.pkl","wb") as f:
             pickle.dump(eeg_2D,f,protocol=4)
-        with open(PROCESSED_DIR+file_name+"_rnn","wb") as f:
+        with open(PROCESSED_DIR+file_name+"_rnn.pkl","wb") as f:
             pickle.dump(eeg_1D,f,protocol=4)
-        with open(PROCESSED_DIR+file_name+"_labels","wb") as f:
+        with open(PROCESSED_DIR+file_name+"_labels.pkl","wb") as f:
             pickle.dump(temp['labels'],f)
+        print("[*] Done.\n")
 
 
 def get_subject_data(subject_no,media_no):
@@ -123,24 +120,25 @@ def get_subject_data(subject_no,media_no):
         arousal value
     '''
     # For the subject selection (1-32)
-    subject = subject_no
-    if subject<10:
-        subject = '0'+str(subject)
+    if subject_no<10:
+        file_name='s'+str(0)+str(subject_no)
     else:
-        subject = str(subject)
-    # For selecting the media (1-40)
-    media = media_no
+        file_name='s'+str(subject_no)
+    print("[+] Reading subject:",file_name)
     #Importing the file
-    file_dir = DATASET_DIR + "s"+subject+'.dat'
-    data = pickle.load(open(file_dir, 'rb'),encoding='latin1')
+    file_dir = PROCESSED_DIR+file_name
     #Fetching the required data
-    eeg_time_data = data['data'][media]
-    #Removing unnecessary channels
-    eeg = eeg_time_data[:32].transpose()
-    eeg_2D_normalized = norm_2D_dataset(eeg)
-    eeg_1D_normalized = norm_1D_dataset(eeg)
+    eeg_1D_normalized = pickle.load(open(file_dir+"_rnn.pkl", 'rb'))[media_no]
+    eeg_2D_normalized = pickle.load(open(file_dir+"_cnn.pkl", 'rb'))[media_no]
     #Fetching valance and arousal
-    valance = data['labels'][media][0]
-    arousal = data['labels'][media][1]
+    labels=pickle.load(open(file_dir+"_labels.pkl", 'rb'))
+    valance = labels[media_no][0]
+    arousal = labels[media_no][1]
     #Returning the dataset
     return eeg_1D_normalized,eeg_2D_normalized,valance,arousal
+
+if __name__ == '__main__':
+    try:
+        pre_process_all(DATASET_DIR)
+    except KeyboardInterrupt:
+        print("\n[!] Exitting ...")
