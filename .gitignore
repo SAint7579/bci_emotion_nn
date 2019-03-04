@@ -1,5 +1,4 @@
 __pycache__/
 pre_processed_data/*
 !pre_processed_data/.gitkeep
-.ipynb_checkpoints/*
-!.ipynb_checkpoints/.gitkeep
+.ipynb_checkpoints/
