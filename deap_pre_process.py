@@ -2,6 +2,7 @@ import _pickle as pickle
 import numpy as np
 from os import path
 from multiprocessing import Pool
+from time import time
 
 THREADS=4
 DATASET_DIR ="../dataset_emotion_nn/"  #Default dataset directory
@@ -111,7 +112,7 @@ def pre_process_range(directory=DATASET_DIR,start_range=1,end_range=33):
 
 def multi_pre_process_all():
     MUL=32//THREADS
-    Pool().starmap(pre_process_range,[(DATASET_DIR,i*MUL,(i+1)*MUL) for i in range(THREADS)])
+    Pool().starmap(pre_process_range,[(DATASET_DIR,i*MUL+1,(i+1)*MUL+1) for i in range(THREADS)])
 
 def get_subject_data(subject_no,media_no):
     '''
@@ -150,6 +151,8 @@ def get_subject_data(subject_no,media_no):
 
 if __name__ == '__main__':
     try:
+        t=time()
         multi_pre_process_all()
+        print("[*] Time Taken:",(time()-t))
     except KeyboardInterrupt:
         print("\n[!] Exitting ...")
