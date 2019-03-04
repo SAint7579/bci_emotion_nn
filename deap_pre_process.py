@@ -1,5 +1,6 @@
 import _pickle as pickle
 import numpy as np
+from os import path
 
 DATASET_DIR ="../dataset_emotion_nn/"  #Default dataset directory
 PROCESSED_DIR = "pre_processed_data/"
@@ -65,8 +66,8 @@ def norm_2D_dataset(dataset_1D):
     # return shape: m*9*9
     return norm_dataset_2D
 
-def pre_process_all(directory=DATASET_DIR):
-    for i in range (1,33):
+def pre_process_all(directory=DATASET_DIR,start=1,end=33):
+    for i in range(start,end):
         if i<10:
             file_name='s'+str(0)+str(i)
         else:
@@ -128,6 +129,11 @@ def get_subject_data(subject_no,media_no):
     #Importing the file
     file_dir = PROCESSED_DIR+file_name
     #Fetching the required data
+    if not path.exists(file_dir+"_labels.pkl"):
+        pre_process_all(DATASET_DIR,subject_no,subject_no+1)
+    else:
+        pass
+
     eeg_1D_normalized = pickle.load(open(file_dir+"_rnn.pkl", 'rb'))[media_no]
     eeg_2D_normalized = pickle.load(open(file_dir+"_cnn.pkl", 'rb'))[media_no]
     #Fetching valance and arousal
