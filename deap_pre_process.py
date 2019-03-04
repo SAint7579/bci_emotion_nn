@@ -1,7 +1,9 @@
 import _pickle as pickle
 import numpy as np
 from os import path
+from multiprocessing import Pool
 
+THREADS=4
 DATASET_DIR ="../dataset_emotion_nn/"  #Default dataset directory
 PROCESSED_DIR = "pre_processed_data/"
 
@@ -66,8 +68,8 @@ def norm_2D_dataset(dataset_1D):
     # return shape: m*9*9
     return norm_dataset_2D
 
-def pre_process_all(directory=DATASET_DIR,start=1,end=33):
-    for i in range(start,end):
+def pre_process_range(directory=DATASET_DIR,start_range=1,end_range=33):
+    for i in range(start_range,end_range):
         if i<10:
             file_name='s'+str(0)+str(i)
         else:
@@ -107,6 +109,9 @@ def pre_process_all(directory=DATASET_DIR,start=1,end=33):
             pickle.dump(temp['labels'],f)
         print("[*] Done.\n")
 
+def multi_pre_process_all():
+    MUL=32//THREADS
+    Pool().starmap(pre_process_range,[(DATASET_DIR,i*MUL,(i+1)*MUL) for i in range(THREADS)])
 
 def get_subject_data(subject_no,media_no):
     '''
@@ -130,7 +135,7 @@ def get_subject_data(subject_no,media_no):
     file_dir = PROCESSED_DIR+file_name
     #Fetching the required data
     if not path.exists(file_dir+"_labels.pkl"):
-        pre_process_all(DATASET_DIR,subject_no,subject_no+1)
+        pre_process_range(DATASET_DIR,subject_no,subject_no+1)
     else:
         pass
 
@@ -145,6 +150,6 @@ def get_subject_data(subject_no,media_no):
 
 if __name__ == '__main__':
     try:
-        pre_process_all(DATASET_DIR)
+        multi_pre_process_all()
     except KeyboardInterrupt:
         print("\n[!] Exitting ...")
