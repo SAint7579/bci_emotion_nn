@@ -127,6 +127,7 @@ def get_subject_data(subject_no,media_no):
         arousal value
     '''
     # For the subject selection (1-32)
+    media_no=list(media_no)
     if subject_no<10:
         file_name='s'+str(0)+str(subject_no)
     else:
@@ -140,14 +141,21 @@ def get_subject_data(subject_no,media_no):
     else:
         pass
 
-    eeg_1D_normalized = pickle.load(open(file_dir+"_rnn.pkl", 'rb'))[media_no]
-    eeg_2D_normalized = pickle.load(open(file_dir+"_cnn.pkl", 'rb'))[media_no]
+    eeg_1D_normalized = pickle.load(open(file_dir+"_rnn.pkl", 'rb'))
+    eeg_2D_normalized = pickle.load(open(file_dir+"_cnn.pkl", 'rb'))
     #Fetching valance and arousal
     labels=pickle.load(open(file_dir+"_labels.pkl", 'rb'))
-    valance = labels[media_no][0]
-    arousal = labels[media_no][1]
+    eeg_1D_list=[]
+    eeg_2D_list=[]
+    valance=[]
+    arousal=[]
+    for i in media_no:
+        eeg_1D_list.append(eeg_1D_normalized[i])
+        eeg_2D_list.append(eeg_2D_normalized[i])
+        valance.append(labels[i][0])
+        arousal.append(labels[i][1])
     #Returning the dataset
-    return eeg_1D_normalized,eeg_2D_normalized,valance,arousal
+    return eeg_1D_list,eeg_2D_list,valance,arousal
 
 if __name__ == '__main__':
     try:
