@@ -138,7 +138,6 @@ def multi_pre_process_all():
     Pool().starmap(pre_process_range,[(i*MUL+1,(i+1)*MUL+1) for i in range(PROCESSES)])
 
 def pre_process_range(start,end):
-    begin = time.time()
     dataset_dir     =   "../dataset_emotion_nn/"
     window_size     =   128
     output_dir      =   "./pre_processed_data/"
@@ -146,43 +145,43 @@ def pre_process_range(start,end):
         os.makedirs(output_dir)
     # print(record_list)
     for i in range(start,end):
+        begin = time.time()
         if i<10:
-            file_name='s'+str(0)+str(i)
+            file_name='s0'+str(i)
         else:
             file_name='s'+str(i)
-        print("[+] Reading subject:",file_name)
-        shuffled_cnn_data,shuffled_rnn_data,shuffled_label_aro,shuffled_label_val = apply_mixup(dataset_dir+file_name+".dat", window_size)
-
-        pred_aro=np.zeros((shuffled_label_aro.shape[0],2))        
-        pred_val=np.zeros((shuffled_label_val.shape[0],2))        
-        for lbl_ind in range(shuffled_label_aro.shape[0]):
-            pred_aro[lbl_ind][int(shuffled_label_aro[lbl_ind])]=1
-            pred_val[lbl_ind][int(shuffled_label_val[lbl_ind])]=1
 
         output_data_cnn = output_dir+file_name+"_cnn.pkl"
         output_data_rnn = output_dir+file_name+"_rnn.pkl"
         output_label_aro= output_dir+file_name+"_aro_labels.pkl"
         output_label_val= output_dir+file_name+"_val_labels.pkl"
 
-        print("[+] Writing processed:",file_name)
-        with open(output_data_cnn, "wb") as fp:
-            pickle.dump( shuffled_cnn_data,fp, protocol=4)
+        if not os.path.exists(output_label_val):
+            print("[+] Reading subject:",file_name)
+            shuffled_cnn_data,shuffled_rnn_data,shuffled_label_aro,shuffled_label_val = apply_mixup(dataset_dir+file_name+".dat", window_size)
 
-        with open( output_data_rnn, "wb") as fp:
-            pickle.dump(shuffled_rnn_data, fp, protocol=4)
+            pred_aro=np.zeros((shuffled_label_aro.shape[0],2))        
+            pred_val=np.zeros((shuffled_label_val.shape[0],2))        
+            for lbl_ind in range(shuffled_label_aro.shape[0]):
+                pred_aro[lbl_ind][int(shuffled_label_aro[lbl_ind])]=1
+                pred_val[lbl_ind][int(shuffled_label_val[lbl_ind])]=1
 
-        with open(output_label_aro, "wb") as fp:
-            pickle.dump(pred_aro, fp)
-
-        with open(output_label_val, "wb") as fp:
-            pickle.dump(pred_val, fp)
-        end = time.time()
-        print("[*] Time consumed:",(end-begin))
+            print("[+] Writing processed:",file_name)
+            with open(output_data_cnn, "wb") as fp:
+                pickle.dump( shuffled_cnn_data,fp, protocol=4)
+            with open( output_data_rnn, "wb") as fp:
+                pickle.dump(shuffled_rnn_data, fp, protocol=4)
+            with open(output_label_aro, "wb") as fp:
+                pickle.dump(pred_aro, fp)
+            with open(output_label_val, "wb") as fp:
+                pickle.dump(pred_val, fp)
+            end = time.time()
+            print("[*] Time consumed:",(end-begin))
 
 PROCESSED_DIR = "./pre_processed_data/"
 def get_subject_data(subject_no, aro_or_val):
     if subject_no<10:
-        file_name='s'+str(0)+str(subject_no)
+        file_name='s0'+str(subject_no)
     else:
         file_name='s'+str(subject_no)
     file_dir = PROCESSED_DIR+file_name
