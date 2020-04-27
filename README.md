@@ -1,4 +1,4 @@
-# Emotion Recognition from BCI signals using Neural Networks
+# Emotion Recognition from EEG signals using Neural Networks
 
 EEG signal processign and Tensorflow code for implementing the hybrid LSTM+CNN network to recognize the state of valance and arousal.
 <br><br>
